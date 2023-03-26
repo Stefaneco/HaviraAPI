@@ -17,5 +17,10 @@ public class ProfileRepository : IProfileRepository
         _dbContext.UserProfiles.Add(new UserProfile { Id = userId, Name = userName });
         _dbContext.SaveChanges();
     }
+
+    public UserProfile GetUserProfileById(string userId)
+    {
+        return _dbContext.UserProfiles.First(u => u.Id == userId);
+    }
 }
 

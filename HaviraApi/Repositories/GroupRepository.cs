@@ -28,12 +28,21 @@ public class GroupRepository : IGroupRepository
         return group;
     }
 
-    public Group GetGroup(long Id)
+    public Group GetGroupById(long Id)
     {
         var group = _dbContext.Groups
             .Include(g => g.UserProfiles)
             .Include(g => g.Dishes)
             .First(g => g.Id == Id);
+        return group;
+    }
+
+    public Group GetGroupByJoinCode(string joinCode)
+    {
+        var group = _dbContext.Groups
+            .Include(g => g.UserProfiles)
+            .Include(g => g.Dishes)
+            .First(g => g.JoinCode == joinCode);
         return group;
     }
 
@@ -45,6 +54,12 @@ public class GroupRepository : IGroupRepository
             .Where(g => g.UserProfiles.Any(u => u.Id == userId))
             .ToList();
         return groups;
+    }
+
+    public void UpdateGroup(Group group)
+    {
+        _dbContext.Groups.Update(group);
+        _dbContext.SaveChanges();
     }
 }
 

@@ -4,6 +4,7 @@ using System.Text;
 using AutoMapper;
 using Azure.Storage.Blobs;
 using HaviraApi.Entities;
+using HaviraApi.Exceptions;
 using HaviraApi.Models;
 using HaviraApi.Models.Dto;
 using HaviraApi.Models.Request;
@@ -14,20 +15,22 @@ namespace HaviraApi.Services;
 
 public class GroupService : IGroupService
 {
-    //private readonly BlobServiceClient _blobServiceClient;
     private readonly IGroupRepository _groupRepository;
+    private readonly IProfileRepository _profileRepository;
     private readonly IMapper _mapper;
 
-    public GroupService(IGroupRepository groupRepository, IMapper mapper)
+    public GroupService(
+        IGroupRepository groupRepository,
+        IProfileRepository profileRepository,
+        IMapper mapper)
 	{
         _groupRepository = groupRepository;
+        _profileRepository = profileRepository;
         _mapper = mapper;
     }
 
     public GroupListItemDto CreateGroup(CreateGroupRequest request, string userId)
     {
-        //var containerClient = _blobServiceClient.GetBlobContainerClient("profilepictures");
-
         var group = new Group()
         {
             Name = request.Name,
@@ -44,7 +47,7 @@ public class GroupService : IGroupService
 
     public GroupDto GetGroupById(long id)
     {
-        var group = _groupRepository.GetGroup(id);
+        var group = _groupRepository.GetGroupById(id);
         return _mapper.Map<GroupDto>(group);
     }
 
@@ -52,7 +55,17 @@ public class GroupService : IGroupService
     {
         var groups = _groupRepository.GetGroupsByUserId(userId);
         return _mapper.Map<List<GroupListItemDto>>(groups);
-        throw new NotImplementedException();
+    }
+
+    public GroupListItemDto JoinGroup(string joinCode, string userId)
+    {
+        var group = _groupRepository.GetGroupByJoinCode(joinCode);
+        var isUserAleardyInGroup = group.UserProfiles.Exists(u => u.Id == userId);
+        if (isUserAleardyInGroup) throw new BadRequestException("User is already a member of this group");
+        var userProfile = _profileRepository.GetUserProfileById(userId);
+        group.UserProfiles.Add(userProfile);
+        _groupRepository.UpdateGroup(group);
+        return _mapper.Map<GroupListItemDto>(group);
     }
 
     private string GenerateRandomString(int size)
@@ -70,7 +83,7 @@ public class GroupService : IGroupService
         {
             var rnd = BitConverter.ToUInt32(data, i * 4);
             var idx = rnd % chars.Length;
-
+        
             result.Append(chars[idx]);
         }
 

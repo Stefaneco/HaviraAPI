@@ -14,5 +14,7 @@ public interface IGroupService
     public List<GroupListItemDto> GetGroupsByUserId(string userId);
 
     public GroupDto GetGroupById(long id);
+
+    public GroupListItemDto JoinGroup(string joinCode, string userId);
 }
 

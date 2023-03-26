@@ -42,5 +42,13 @@ public class GroupController : ControllerBase
         var group = _groupService.GetGroupById(id);
         return Ok(group);
     }
+
+    [HttpGet("join/{joinCode}")]
+    public ActionResult JoinGroup([FromRoute] string joinCode) {
+        var clientId = Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"].ToString();
+        if (clientId is null) return Unauthorized();
+        var group = _groupService.JoinGroup(joinCode, clientId);
+        return Ok(group);
+    }
 }
 

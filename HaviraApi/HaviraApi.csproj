@@ -32,6 +32,7 @@
     <None Remove="Models\Dto\" />
     <None Remove="Mappers\" />
     <None Remove="Middleware\" />
+    <None Remove="Exceptions\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
@@ -43,6 +44,7 @@
     <Folder Include="Models\Dto\" />
     <Folder Include="Mappers\" />
     <Folder Include="Middleware\" />
+    <Folder Include="Exceptions\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="appsettings.Development.json" />
