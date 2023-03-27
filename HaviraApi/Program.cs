@@ -12,10 +12,12 @@ var builder = WebApplication.CreateBuilder(args);
 //SERVICES
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
+builder.Services.AddScoped<IDishService, DishService>();
 
 //REPOS
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+builder.Services.AddScoped<IDishRepository, DishRepository>();
 
 
 builder.Services.AddControllers();

@@ -14,6 +14,6 @@ public class HaviraDbContext : DbContext
 
 	public DbSet<UserProfile> UserProfiles { get; set; }
 
-	//public DbSet<GroupUser> GroupUsers { get; set; }
+	public DbSet<DishPrep> DishPreps { get; set; }
 }
 
