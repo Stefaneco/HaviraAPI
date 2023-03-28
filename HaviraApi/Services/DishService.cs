@@ -32,6 +32,18 @@ public class DishService : IDishService
         return createdDish;
     }
 
+    public DishPrep CreateDishPrep(CreateDishPrepRequest request, string userId, long dishId)
+    {
+        var newDishPrep = new DishPrep {
+            Rating = request.Rating,
+            UserProfileId = userId,
+            DishId = dishId,
+            DateTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds()
+        };
+        var createdDishPrep = _dishRepository.CreateDishPrep(newDishPrep);
+        return createdDishPrep;
+    }
+
     public Dish GetDish(long dishId)
     {
         var dish = _dishRepository.GetDish(dishId);

@@ -20,6 +20,13 @@ public class DishRepository : IDishRepository
         return createdDish.Entity;
     }
 
+    public DishPrep CreateDishPrep(DishPrep dishPrep)
+    {
+        var createdDishPrep = _dbContext.DishPreps.Add(dishPrep);
+        _dbContext.SaveChanges();
+        return createdDishPrep.Entity;
+    }
+
     public Dish GetDish(long dishId)
     {
         var dish = _dbContext.Dishes

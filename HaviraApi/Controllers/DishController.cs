@@ -29,6 +29,13 @@ public class DishController : ControllerBase
 		return Ok(dish);
 	}
 
-	
+    [HttpPost("{dishId}/DishPrep")]
+    public ActionResult CreateDishPrep(CreateDishPrepRequest request, [FromRoute] long dishId)
+    {
+        var clientId = Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"].ToString();
+        if (clientId is null) return Unauthorized();
+		var createdDishPrep = _dishService.CreateDishPrep(request, clientId, dishId);
+        return Created(createdDishPrep.Id.ToString(), createdDishPrep);
+    }
 }
 
