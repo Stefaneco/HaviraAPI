@@ -1,5 +1,6 @@
 ﻿using System;
 using HaviraApi.Entities;
+using HaviraApi.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace HaviraApi.Repositories;
@@ -15,16 +16,12 @@ public class GroupRepository : IGroupRepository
 
     public Group CreateGroup(Group group)
     {
-        var userProfile = _dbContext.UserProfiles.FirstOrDefault(u => u.Id == group.OwnerId)
-            ?? throw new Exception("User profile not found!");
-        group.UserProfiles.Add(userProfile);
         var result = _dbContext.Add(group);
         _dbContext.SaveChanges();
         group.Id = result.Entity.Id;
         group.JoinCode += result.Entity.Id;
         _dbContext.Update(group);
         _dbContext.SaveChanges();
-        //var createdGroup = _dbContext.Groups.FirstOrDefault(g => g.Id == group.Id);
         return group;
     }
 
@@ -33,7 +30,8 @@ public class GroupRepository : IGroupRepository
         var group = _dbContext.Groups
             .Include(g => g.UserProfiles)
             .Include(g => g.Dishes)
-            .First(g => g.Id == Id);
+            .First(g => g.Id == Id)
+            ?? throw new NotFoundException("Group not found");
         return group;
     }
 
@@ -42,7 +40,8 @@ public class GroupRepository : IGroupRepository
         var group = _dbContext.Groups
             .Include(g => g.UserProfiles)
             .Include(g => g.Dishes)
-            .First(g => g.JoinCode == joinCode);
+            .First(g => g.JoinCode == joinCode)
+            ?? throw new NotFoundException("Group not found");
         return group;
     }
 

@@ -5,6 +5,8 @@ VisualStudioVersion = 25.0.1706.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HaviraApi", "HaviraApi\HaviraApi.csproj", "{8C4E5A81-8080-4B1B-81D0-150B8DDAB5DA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{FE60D21A-5FEA-4274-AEBB-56EE9E995805}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{8C4E5A81-8080-4B1B-81D0-150B8DDAB5DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C4E5A81-8080-4B1B-81D0-150B8DDAB5DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C4E5A81-8080-4B1B-81D0-150B8DDAB5DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE60D21A-5FEA-4274-AEBB-56EE9E995805}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE60D21A-5FEA-4274-AEBB-56EE9E995805}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE60D21A-5FEA-4274-AEBB-56EE9E995805}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE60D21A-5FEA-4274-AEBB-56EE9E995805}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

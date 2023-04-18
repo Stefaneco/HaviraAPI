@@ -12,5 +12,7 @@ public interface IDishRepository
     public List<DishPrep> GetDishPrepsByDishId(long dishId);
 
     public DishPrep CreateDishPrep(DishPrep dishPrep);
+
+    public Dish UpdateDish(Dish dish);
 }
 

@@ -41,6 +41,17 @@ public class DishService : IDishService
             DateTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds()
         };
         var createdDishPrep = _dishRepository.CreateDishPrep(newDishPrep);
+
+        var dish = _dishRepository.GetDish(createdDishPrep.DishId);
+        
+        dish.LastMadeTimestamp = createdDishPrep.DateTimestamp;
+        dish.Rating =
+            ((dish.Rating * dish.NofRatings)
+            + createdDishPrep.Rating) / (dish.NofRatings + 1);
+        dish.NofRatings += 1;
+
+        _dishRepository.UpdateDish(dish);
+
         return createdDishPrep;
     }
 

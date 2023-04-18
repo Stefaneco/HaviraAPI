@@ -1,5 +1,7 @@
 ﻿using System;
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using HaviraApi.Entities;
 using HaviraApi.Repositories;
 
 namespace HaviraApi.Services;
@@ -15,18 +17,27 @@ public class ProfileService : IProfileService
         _profileRepository = profileRepository;
 	}
 
-    public void CreateProfile(string userId, IFormFile image, string userName)
+    public UserProfile CreateProfile(string userId, IFormFile image, string userName)
     {
-        var containerClient = _blobServiceClient.GetBlobContainerClient("profilepictures");
-        var blobClient = containerClient.GetBlobClient(userId);
+        if(image != null) {
+            var containerClient = _blobServiceClient.GetBlobContainerClient("profilepictures");
+            var blobClient = containerClient.GetBlobClient(userId);
 
-        var fileName = image.FileName;
-        var contentType = image.ContentType;
-        var stream = image.OpenReadStream();
+            var stream = image.OpenReadStream();
+            
+            blobClient.Upload(stream, overwrite: true);
 
-        blobClient.UploadAsync(stream, overwrite: true);
+            blobClient.SetHttpHeaders(new BlobHttpHeaders { ContentType = image.ContentType });
+        }
 
-        _profileRepository.CreateProfile(userId, userName);
+        var createdProfile = _profileRepository.CreateProfile(userId, userName);
+        return createdProfile;
+    }
+
+    public UserProfile GetUserProfileById(string userId)
+    {
+        var profile = _profileRepository.GetUserProfileById(userId);
+        return profile;
     }
 }
 

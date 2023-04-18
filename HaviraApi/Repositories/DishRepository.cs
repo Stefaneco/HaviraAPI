@@ -1,5 +1,6 @@
 ﻿using System;
 using HaviraApi.Entities;
+using HaviraApi.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace HaviraApi.Repositories;
@@ -33,6 +34,8 @@ public class DishRepository : IDishRepository
             .Include(d => d.DishPreps)
             .ThenInclude(dp => dp.UserProfile)
             .First(d => d.Id == dishId);
+        if(dish is null)
+            throw new NotFoundException("Dish not found");
         return dish;
     }
 
@@ -42,6 +45,15 @@ public class DishRepository : IDishRepository
             .Include(dp => dp.UserProfile)
             .Where(dp => dp.DishId == dishId);
         return dishPreps.ToList();
+    }
+
+    public Dish UpdateDish(Dish dish)
+    {
+        var updatedDish = _dbContext.Dishes.Update(dish);
+        _dbContext.SaveChanges();
+        if (updatedDish is null)
+            throw new NotFoundException("Dish not found");
+        return updatedDish.Entity;
     }
 }
 

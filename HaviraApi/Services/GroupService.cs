@@ -1,11 +1,8 @@
-﻿using System;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using AutoMapper;
-using Azure.Storage.Blobs;
 using HaviraApi.Entities;
 using HaviraApi.Exceptions;
-using HaviraApi.Models;
 using HaviraApi.Models.Dto;
 using HaviraApi.Models.Request;
 using HaviraApi.Models.Response;
@@ -31,6 +28,7 @@ public class GroupService : IGroupService
 
     public GroupListItemDto CreateGroup(CreateGroupRequest request, string userId)
     {
+        var userProfile = _profileRepository.GetUserProfileById(userId);
         var group = new Group()
         {
             Name = request.Name,
@@ -40,6 +38,7 @@ public class GroupService : IGroupService
             UserProfiles = new List<UserProfile>(),
             Dishes = new List<Dish>()
         };
+        group.UserProfiles.Add(userProfile);
         var createdGroup = _groupRepository.CreateGroup(group);
 
         return _mapper.Map<GroupListItemDto>(createdGroup);
@@ -62,8 +61,12 @@ public class GroupService : IGroupService
         var group = _groupRepository.GetGroupByJoinCode(joinCode);
         var isUserAleardyInGroup = group.UserProfiles.Exists(u => u.Id == userId);
         if (isUserAleardyInGroup) throw new BadRequestException("User is already a member of this group");
-        var userProfile = _profileRepository.GetUserProfileById(userId);
-        group.UserProfiles.Add(userProfile);
+        try {
+            var userProfile = _profileRepository.GetUserProfileById(userId);
+            group.UserProfiles.Add(userProfile);
+        } catch(NotFoundException e) {
+            throw new BadRequestException("User did not create profile");
+        }
         _groupRepository.UpdateGroup(group);
         return _mapper.Map<GroupListItemDto>(group);
     }

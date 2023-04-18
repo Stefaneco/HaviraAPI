@@ -10,6 +10,5 @@ public class DishPrep
 	public long DateTimestamp { get; set; }
 
 	public virtual UserProfile UserProfile { get; set; }
-	public virtual Dish Dish { get; set; }
 }
 
