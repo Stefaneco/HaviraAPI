@@ -50,5 +50,21 @@ public class GroupController : ControllerBase
         var group = _groupService.JoinGroup(joinCode, clientId);
         return Ok(group);
     }
+
+    [HttpPut("{groupId}/leave")]
+    public ActionResult LeaveGroup([FromRoute] long groupId) {
+        var clientId = Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"].ToString();
+        if (clientId is null) return Unauthorized();
+        _groupService.LeaveGroup(groupId, clientId);
+        return Ok();
+    }
+
+    [HttpDelete("{groupId}")]
+    public ActionResult DeleteGroup([FromRoute] long groupId) {
+        var clientId = Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"].ToString();
+        if (clientId is null) return Unauthorized();
+        _groupService.DeleteGroup(groupId, clientId);
+        return Ok();
+    }
 }
 

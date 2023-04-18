@@ -15,5 +15,7 @@ public interface IGroupRepository
     public Group GetGroupByJoinCode(string joinCode);
 
     public void UpdateGroup(Group group);
+
+    public void DeleteGroup(Group group);
 }
 

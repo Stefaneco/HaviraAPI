@@ -16,5 +16,9 @@ public interface IGroupService
     public GroupDto GetGroupById(long id);
 
     public GroupListItemDto JoinGroup(string joinCode, string userId);
+
+    public void LeaveGroup(long groupId, string userId);
+
+    public void DeleteGroup(long groupId, string userId);
 }
 

@@ -253,5 +253,199 @@ namespace HaviraApi.Test.Services
             // Act & Assert
             Assert.Throws<BadRequestException>(() => _groupService.JoinGroup(createdGroup.JoinCode, userId));
         }
+
+        [Fact]
+        public void LeaveGroup_ShouldLeaveGroupSuccessfully()
+        {
+            // Arrange
+            var ownerId = "test-owner";
+            var ownerName = "Test Owner";
+            var ownerProfile = _fakeProfileRepository.CreateProfile(ownerId, ownerName);
+
+            var userId = "test-user";
+            var userName = "Test User";
+            var userProfile = _fakeProfileRepository.CreateProfile(userId, userName);
+
+            var group = new Group {
+                Name = "Test Group",
+                OwnerId = ownerId,
+                UserProfiles = new List<UserProfile>() { ownerProfile, userProfile }
+            };
+            var createdGroup = _fakeGroupRepository.CreateGroup(group);
+
+            // Act
+            _groupService.LeaveGroup(createdGroup.Id, userId);
+
+            // Assert
+            var updatedGroup = _fakeGroupRepository.GetGroupById(createdGroup.Id);
+            Assert.Single(updatedGroup.UserProfiles);
+            Assert.DoesNotContain(updatedGroup.UserProfiles, u => u.Id == userId);
+        }
+
+        [Fact]
+        public void LeaveGroup_AsOwner_ShouldThrowBadRequestException()
+        {
+            // Arrange
+            var ownerId = "test-owner";
+            var ownerName = "Test Owner";
+            var ownerProfile = _fakeProfileRepository.CreateProfile(ownerId, ownerName);
+
+            var group = new Group {
+                Name = "Test Group",
+                OwnerId = ownerId,
+                UserProfiles = new List<UserProfile>() { ownerProfile }
+            };
+            var createdGroup = _fakeGroupRepository.CreateGroup(group);
+
+            // Act & Assert
+            Assert.Throws<BadRequestException>(() => _groupService.LeaveGroup(createdGroup.Id, ownerId));
+        }
+
+        [Fact]
+        public void LeaveGroup_NotAMember_ShouldThrowBadRequestException()
+        {
+            // Arrange
+            var ownerId = "test-owner";
+            var ownerName = "Test Owner";
+            var ownerProfile = _fakeProfileRepository.CreateProfile(ownerId, ownerName);
+
+            var group = new Group {
+                Name = "Test Group",
+                OwnerId = ownerId,
+                UserProfiles = new List<UserProfile>() { ownerProfile }
+            };
+            var createdGroup = _fakeGroupRepository.CreateGroup(group);
+
+            var userId = "test-user";
+
+            // Act & Assert
+            Assert.Throws<BadRequestException>(() => _groupService.LeaveGroup(createdGroup.Id, userId));
+        }
+
+        [Fact]
+        public void LeaveGroup_NonExistentGroup_ShouldThrowNotFoundException()
+        {
+            // Arrange
+            var ownerId = "test-owner";
+            var ownerName = "Test Owner";
+            var ownerProfile = _fakeProfileRepository.CreateProfile(ownerId, ownerName);
+
+            var userId = "test-user";
+            var userName = "Test User";
+            var userProfile = _fakeProfileRepository.CreateProfile(userId, userName);
+
+            var group = new Group
+            {
+                Name = "Test Group",
+                OwnerId = ownerId,
+                UserProfiles = new List<UserProfile>() { ownerProfile, userProfile }
+            };
+            _fakeGroupRepository.CreateGroup(group);
+
+            long nonExistentGroupId = 9999;
+
+            // Act & Assert
+            Assert.Throws<NotFoundException>(() => _groupService.LeaveGroup(nonExistentGroupId, userId));
+        }
+
+        [Fact]
+        public void LeaveGroup_MemberOfAnotherGroup_ShouldNotAffectOtherGroupMembership()
+        {
+            // Arrange
+            var ownerId = "test-owner";
+            var ownerName = "Test Owner";
+            var ownerProfile = _fakeProfileRepository.CreateProfile(ownerId, ownerName);
+
+            var userId = "test-user";
+            var userName = "Test User";
+            var userProfile = _fakeProfileRepository.CreateProfile(userId, userName);
+
+            var group1 = new Group
+            {
+                Name = "Test Group 1",
+                OwnerId = ownerId,
+                UserProfiles = new List<UserProfile>() { ownerProfile, userProfile }
+            };
+            _fakeGroupRepository.CreateGroup(group1);
+
+            var group2 = new Group
+            {
+                Name = "Test Group 2",
+                OwnerId = ownerId,
+                UserProfiles = new List<UserProfile>() { ownerProfile, userProfile }
+            };
+            _fakeGroupRepository.CreateGroup(group2);
+
+            // Act
+            _groupService.LeaveGroup(group1.Id, userId);
+
+            // Assert
+            var updatedGroup1 = _fakeGroupRepository.GetGroupById(group1.Id);
+            Assert.False(updatedGroup1.UserProfiles.Any(u => u.Id == userId), "User should not be a member of Group 1");
+
+            var updatedGroup2 = _fakeGroupRepository.GetGroupById(group2.Id);
+            Assert.True(updatedGroup2.UserProfiles.Any(u => u.Id == userId), "User should still be a member of Group 2");
+
+            var remainingGroups = _groupService.GetGroupsByUserId(userId);
+            Assert.Single(remainingGroups);
+            Assert.Equal(group2.Id, remainingGroups[0].Id);
+        }
+
+        [Fact]
+        public void DeleteGroup_ShouldDeleteGroupWhenOwner()
+        {
+            // Arrange
+            var ownerId = "test-owner";
+            var ownerName = "Test Owner";
+            var ownerProfile = _fakeProfileRepository.CreateProfile(ownerId, ownerName);
+
+            var userId = "test-user";
+            var userName = "Test User";
+            var userProfile = _fakeProfileRepository.CreateProfile(userId, userName);
+
+            var group = new Group
+            {
+                Name = "Test Group",
+                OwnerId = ownerId,
+                UserProfiles = new List<UserProfile>() { ownerProfile, userProfile }
+            };
+            var createdGroup = _fakeGroupRepository.CreateGroup(group);
+
+            // Act
+            _groupService.DeleteGroup(createdGroup.Id, ownerId);
+
+            // Assert
+            var exception = Assert.Throws<NotFoundException>(() => _fakeGroupRepository.GetGroupById(createdGroup.Id));
+            Assert.Equal("Group not found", exception.Message);
+        }
+
+        [Fact]
+        public void DeleteGroup_NotOwner_ThrowsBadRequestException()
+        {
+            // Arrange
+            var ownerId = "test-owner";
+            var ownerName = "Test Owner";
+            var ownerProfile = _fakeProfileRepository.CreateProfile(ownerId, ownerName);
+
+            var userId = "test-user";
+            var userName = "Test User";
+            var userProfile = _fakeProfileRepository.CreateProfile(userId, userName);
+
+            var group = new Group
+            {
+                Name = "Test Group",
+                OwnerId = ownerId,
+                UserProfiles = new List<UserProfile>() { ownerProfile, userProfile }
+            };
+            var createdGroup = _fakeGroupRepository.CreateGroup(group);
+
+            // Act
+            var exception = Assert.Throws<BadRequestException>(() => _groupService.DeleteGroup(createdGroup.Id, userId));
+
+            // Assert
+            Assert.Equal("Only owner can delete this group", exception.Message);
+        }
+
+
     }
 }

@@ -44,6 +44,13 @@ public class GroupService : IGroupService
         return _mapper.Map<GroupListItemDto>(createdGroup);
     }
 
+    public void DeleteGroup(long groupId, string userId)
+    {
+        var group = _groupRepository.GetGroupById(groupId);
+        if (group.OwnerId != userId) throw new BadRequestException("Only owner can delete this group");
+        _groupRepository.DeleteGroup(group);
+    }
+
     public GroupDto GetGroupById(long id)
     {
         var group = _groupRepository.GetGroupById(id);
@@ -69,6 +76,16 @@ public class GroupService : IGroupService
         }
         _groupRepository.UpdateGroup(group);
         return _mapper.Map<GroupListItemDto>(group);
+    }
+
+    public void LeaveGroup(long groupId, string userId)
+    {
+        var group = _groupRepository.GetGroupById(groupId);
+        if (group.OwnerId == userId) throw new BadRequestException("Owner can't leave the group");
+        var userProfile = group.UserProfiles.FirstOrDefault(u => u.Id == userId)
+            ?? throw new BadRequestException("User is not a member of this group");
+        group.UserProfiles.Remove(userProfile);
+        _groupRepository.UpdateGroup(group);
     }
 
     private string GenerateRandomString(int size)

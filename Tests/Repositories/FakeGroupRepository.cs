@@ -54,4 +54,10 @@ public class FakeGroupRepository : IGroupRepository
             throw new NotFoundException("Group not found");
         }
     }
+
+    public void DeleteGroup(Group group)
+    {
+        if (!_groups.Remove(group.Id))
+            throw new NotFoundException("Group not found");
+    }
 }

@@ -25,6 +25,12 @@ public class GroupRepository : IGroupRepository
         return group;
     }
 
+    public void DeleteGroup(Group group)
+    {
+        _dbContext.Groups.Remove(group);
+        _dbContext.SaveChanges();
+    }
+
     public Group GetGroupById(long Id)
     {
         var group = _dbContext.Groups
