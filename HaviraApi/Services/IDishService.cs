@@ -12,5 +12,7 @@ public interface IDishService
     public Dish CreateDish(CreateDishRequest request, string ownerId);
 
     public DishPrep CreateDishPrep(CreateDishPrepRequest request, string userId, long dishId);
+
+    public Dish UpdateDish(UpdateDishRequest request, long dishId, string userId);
 }
 

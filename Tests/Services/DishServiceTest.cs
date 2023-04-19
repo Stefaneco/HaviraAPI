@@ -10,11 +10,15 @@ public class DishServiceTests
 {
     private readonly DishService _dishService;
     private readonly FakeDishRepository _fakeDishRepository;
+    private readonly FakeGroupRepository _fakeGroupRepository;
+    private readonly FakeProfileRepository _fakeProfileRepository;
 
     public DishServiceTests()
     {
         _fakeDishRepository = new FakeDishRepository();
-        _dishService = new DishService(_fakeDishRepository);
+        _fakeGroupRepository = new FakeGroupRepository();
+        _fakeProfileRepository = new FakeProfileRepository();
+        _dishService = new DishService(_fakeDishRepository, _fakeGroupRepository);
     }
 
     [Fact]
@@ -162,6 +166,117 @@ public class DishServiceTests
 
         // Act & Assert
         Assert.Throws<NotFoundException>(() => _dishService.GetDish(nonExistentDishId));
+    }
+
+    [Fact]
+    public void UpdateDish_ShouldUpdateDishWhenUserIsOwnerOfGroup()
+    {
+        // Arrange
+        var userId = "test-user";
+        var userName = "Test User";
+        var userProfile = _fakeProfileRepository.CreateProfile(userId, userName);
+
+        var group = new Group
+        {
+            Name = "Test Group",
+            OwnerId = userId,
+            UserProfiles = new List<UserProfile>() { userProfile }
+        };
+        var createdGroup = _fakeGroupRepository.CreateGroup(group);
+
+        var dish = new Dish { Title = "Original Title", Desc = "Original Desc", GroupId = createdGroup.Id };
+        var createdDish = _fakeDishRepository.CreateDish(dish);
+
+        var updateRequest = new UpdateDishRequest { Title = "Updated Title", Desc = "Updated Desc" };
+
+        // Act
+        var updatedDish = _dishService.UpdateDish(updateRequest, createdDish.Id, userId);
+
+        // Assert
+        Assert.Equal(createdDish.Id, updatedDish.Id);
+        Assert.Equal(updateRequest.Title, updatedDish.Title);
+        Assert.Equal(updateRequest.Desc, updatedDish.Desc);
+    }
+
+    [Fact]
+    public void UpdateDish_ShouldUpdateDishWhenUserIsMemberOfGroup()
+    {
+        // Arrange
+        var ownerId = "test-user";
+        var ownerName = "Test User";
+        var ownerProfile = _fakeProfileRepository.CreateProfile(ownerId, ownerName);
+
+        var userId = "test-user";
+        var userName = "Test User";
+        var userProfile = _fakeProfileRepository.CreateProfile(userId, userName);
+
+        var group = new Group
+        {
+            Name = "Test Group",
+            OwnerId = ownerId,
+            UserProfiles = new List<UserProfile>() { userProfile, ownerProfile }
+        };
+        var createdGroup = _fakeGroupRepository.CreateGroup(group);
+
+        var dish = new Dish { Title = "Original Title", Desc = "Original Desc", GroupId = createdGroup.Id };
+        var createdDish = _fakeDishRepository.CreateDish(dish);
+
+        var updateRequest = new UpdateDishRequest { Title = "Updated Title", Desc = "Updated Desc" };
+
+        // Act
+        var updatedDish = _dishService.UpdateDish(updateRequest, createdDish.Id, userId);
+
+        // Assert
+        Assert.Equal(createdDish.Id, updatedDish.Id);
+        Assert.Equal(updateRequest.Title, updatedDish.Title);
+        Assert.Equal(updateRequest.Desc, updatedDish.Desc);
+    }
+
+    [Fact]
+    public void UpdateDish_ShouldThrowBadRequestExceptionWhenUserNotMemberOfGroup()
+    {
+        // Arrange
+        var ownerId = "test-owner";
+        var ownerName = "Test Owner";
+        var ownerProfile = _fakeProfileRepository.CreateProfile(ownerId, ownerName);
+
+        var group = new Group
+        {
+            Name = "Test Group",
+            OwnerId = ownerId,
+            UserProfiles = new List<UserProfile>() { ownerProfile }
+        };
+        var createdGroup = _fakeGroupRepository.CreateGroup(group);
+
+        var dish = new Dish { Title = "Original Title", Desc = "Original Desc", GroupId = createdGroup.Id };
+        var createdDish = _fakeDishRepository.CreateDish(dish);
+
+        var updateRequest = new UpdateDishRequest { Title = "Updated Title", Desc = "Updated Desc" };
+
+        // Act & Assert
+        Assert.Throws<BadRequestException>(() => _dishService.UpdateDish(updateRequest, createdDish.Id, "unrelated-user-id"));
+    }
+
+    [Fact]
+    public void UpdateDish_ShouldThrowNotFoundExceptionWhenDishNotFound()
+    {
+        // Arrange
+        var userId = "test-user";
+        var userName = "Test User";
+        var userProfile = _fakeProfileRepository.CreateProfile(userId, userName);
+
+        var group = new Group
+        {
+            Name = "Test Group",
+            OwnerId = userId,
+            UserProfiles = new List<UserProfile>() { userProfile }
+        };
+        var createdGroup = _fakeGroupRepository.CreateGroup(group);
+
+        var updateRequest = new UpdateDishRequest { Title = "Updated Title", Desc = "Updated Desc" };
+
+        // Act & Assert
+        Assert.Throws<NotFoundException>(() => _dishService.UpdateDish(updateRequest, -1, userId));
     }
 
 }

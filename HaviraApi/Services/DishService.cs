@@ -1,5 +1,6 @@
 ﻿using System;
 using HaviraApi.Entities;
+using HaviraApi.Exceptions;
 using HaviraApi.Models.Request;
 using HaviraApi.Repositories;
 
@@ -8,12 +9,15 @@ namespace HaviraApi.Services;
 public class DishService : IDishService
 {
 	private readonly IDishRepository _dishRepository;
+    private readonly IGroupRepository _groupRepository;
 
 	public DishService(
-		IDishRepository dishRepository
+		IDishRepository dishRepository,
+        IGroupRepository groupRepository
 		)
 	{
 		_dishRepository = dishRepository;
+        _groupRepository = groupRepository;
 	}
 
     public Dish CreateDish(CreateDishRequest request, string ownerId)
@@ -59,6 +63,20 @@ public class DishService : IDishService
     {
         var dish = _dishRepository.GetDish(dishId);
         return dish;
+    }
+
+    public Dish UpdateDish(UpdateDishRequest request, long dishId, string userId)
+    {
+        var dish = _dishRepository.GetDish(dishId);
+        var group = _groupRepository.GetGroupById(dish.GroupId);
+        var isUserInGroup = group.UserProfiles.Exists(u => u.Id == userId);
+        if (!isUserInGroup) throw new BadRequestException("User is not a member of this group");
+
+        dish.Desc = request.Desc;
+        dish.Title = request.Title;
+
+        var updatedDish = _dishRepository.UpdateDish(dish);
+        return updatedDish;
     }
 }
 

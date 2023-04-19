@@ -33,9 +33,7 @@ public class DishRepository : IDishRepository
         var dish = _dbContext.Dishes
             .Include(d => d.DishPreps)
             .ThenInclude(dp => dp.UserProfile)
-            .First(d => d.Id == dishId);
-        if(dish is null)
-            throw new NotFoundException("Dish not found");
+            .First(d => d.Id == dishId) ?? throw new NotFoundException("Dish not found");
         return dish;
     }
 
