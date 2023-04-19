@@ -59,6 +59,15 @@ public class DishService : IDishService
         return createdDishPrep;
     }
 
+    public void DeleteDish(long dishId, string userId)
+    {
+        var dish = _dishRepository.GetDish(dishId);
+        var group = _groupRepository.GetGroupById(dish.GroupId);
+        var isUserInGroup = group.UserProfiles.Exists(u => u.Id == userId);
+        if (!isUserInGroup) throw new BadRequestException("User is not a member of this group");
+        _dishRepository.DeleteDish(dish);
+    }
+
     public Dish GetDish(long dishId)
     {
         var dish = _dishRepository.GetDish(dishId);

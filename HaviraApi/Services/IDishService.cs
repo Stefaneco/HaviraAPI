@@ -14,5 +14,7 @@ public interface IDishService
     public DishPrep CreateDishPrep(CreateDishPrepRequest request, string userId, long dishId);
 
     public Dish UpdateDish(UpdateDishRequest request, long dishId, string userId);
+
+    public void DeleteDish(long dishId, string userId);
 }
 

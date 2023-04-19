@@ -45,5 +45,13 @@ public class DishController : ControllerBase
 		var updatedDish = _dishService.UpdateDish(request, dishId, clientId);
 		return Ok(updatedDish);
     }
+
+	[HttpDelete("{dishId}")]
+    public ActionResult DeleteDish([FromRoute] long dishId) {
+        var clientId = Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"].ToString();
+        if (clientId is null) return Unauthorized();
+		_dishService.DeleteDish(dishId, clientId);
+		return Ok();
+    }
 }
 

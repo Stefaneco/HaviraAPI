@@ -31,6 +31,18 @@ public class FakeDishRepository : IDishRepository
         return dishPrep;
     }
 
+    public void DeleteDish(Dish dish)
+    {
+        if (_dishes.ContainsKey(dish.Id))
+        {
+            _dishes.Remove(dish.Id);
+        }
+        else
+        {
+            throw new NotFoundException("Dish not found");
+        }
+    }
+
     public Dish GetDish(long dishId)
     {
         if (_dishes.TryGetValue(dishId, out var dish))

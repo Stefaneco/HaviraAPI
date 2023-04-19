@@ -14,5 +14,7 @@ public interface IDishRepository
     public DishPrep CreateDishPrep(DishPrep dishPrep);
 
     public Dish UpdateDish(Dish dish);
+
+    public void DeleteDish(Dish dish);
 }
 

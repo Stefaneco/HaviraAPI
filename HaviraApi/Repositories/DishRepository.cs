@@ -28,6 +28,12 @@ public class DishRepository : IDishRepository
         return createdDishPrep.Entity;
     }
 
+    public void DeleteDish(Dish dish)
+    {
+        _dbContext.Dishes.Remove(dish);
+        _dbContext.SaveChanges();
+    }
+
     public Dish GetDish(long dishId)
     {
         var dish = _dbContext.Dishes

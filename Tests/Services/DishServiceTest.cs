@@ -276,7 +276,106 @@ public class DishServiceTests
         var updateRequest = new UpdateDishRequest { Title = "Updated Title", Desc = "Updated Desc" };
 
         // Act & Assert
-        Assert.Throws<NotFoundException>(() => _dishService.UpdateDish(updateRequest, -1, userId));
+        Assert.Throws<NotFoundException>(() => _dishService.UpdateDish(updateRequest, 9999, userId));
+    }
+
+    [Fact]
+    public void DeleteDish_ShouldDeleteDishWhenUserIsOwnerOfDish()
+    {
+        // Arrange
+        var userId = "test-user";
+        var userName = "Test User";
+        var userProfile = _fakeProfileRepository.CreateProfile(userId, userName);
+
+        var group = new Group
+        {
+            Name = "Test Group",
+            OwnerId = userId,
+            UserProfiles = new List<UserProfile>() { userProfile }
+        };
+        var createdGroup = _fakeGroupRepository.CreateGroup(group);
+
+        var dish = new Dish { Title = "Original Title", Desc = "Original Desc", GroupId = createdGroup.Id, OwnerId = userId };
+        var createdDish = _fakeDishRepository.CreateDish(dish);
+
+        // Act
+        _dishService.DeleteDish(dish.Id, userId);
+
+        // Assert
+        Assert.Throws<NotFoundException>(() => _dishService.GetDish(dish.Id));
+    }
+
+    [Fact]
+    public void DeleteDish_ShouldDeleteDishWhenUserIsMemberOfGroup()
+    {
+        // Arrange
+        var ownerId = "test-user";
+        var ownerName = "Test User";
+        var ownerProfile = _fakeProfileRepository.CreateProfile(ownerId, ownerName);
+
+        var userId = "test-user";
+        var userName = "Test User";
+        var userProfile = _fakeProfileRepository.CreateProfile(userId, userName);
+
+        var group = new Group
+        {
+            Name = "Test Group",
+            OwnerId = ownerId,
+            UserProfiles = new List<UserProfile>() { userProfile, ownerProfile }
+        };
+        var createdGroup = _fakeGroupRepository.CreateGroup(group);
+
+        var dish = new Dish { Title = "Original Title", Desc = "Original Desc", GroupId = createdGroup.Id, OwnerId = ownerId };
+        var createdDish = _fakeDishRepository.CreateDish(dish);
+
+        // Act
+        _dishService.DeleteDish(dish.Id, userId);
+
+        // Assert
+        Assert.Throws<NotFoundException>(() => _dishService.GetDish(dish.Id));
+    }
+
+    [Fact]
+    public void DeleteDish_ShouldThrowBadRequestExceptionWhenUserNotMemberOfGroup()
+    {
+        // Arrange
+        var ownerId = "test-owner";
+        var ownerName = "Test Owner";
+        var ownerProfile = _fakeProfileRepository.CreateProfile(ownerId, ownerName);
+
+        var group = new Group
+        {
+            Name = "Test Group",
+            OwnerId = ownerId,
+            UserProfiles = new List<UserProfile>() { ownerProfile }
+        };
+        var createdGroup = _fakeGroupRepository.CreateGroup(group);
+
+        var dish = new Dish { Title = "Original Title", Desc = "Original Desc", GroupId = createdGroup.Id };
+        var createdDish = _fakeDishRepository.CreateDish(dish);
+
+        // Act & Assert
+        Assert.Throws<BadRequestException>(() => _dishService.DeleteDish(createdDish.Id, "unrelated-user-id"));
+    }
+
+    [Fact]
+    public void DeleteDish_ShouldThrowNotFoundExceptionWhenDishNotFound()
+    {
+        // Arrange
+        var userId = "test-user";
+        var userName = "Test User";
+        var userProfile = _fakeProfileRepository.CreateProfile(userId, userName);
+
+        var group = new Group
+        {
+            Name = "Test Group",
+            OwnerId = userId,
+            UserProfiles = new List<UserProfile>() { userProfile }
+        };
+        var createdGroup = _fakeGroupRepository.CreateGroup(group);
+
+        // Act & Assert
+        Assert.Throws<NotFoundException>(() => _dishService.DeleteDish(9999, userId));
     }
 
 }
