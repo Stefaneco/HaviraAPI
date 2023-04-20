@@ -76,7 +76,7 @@ public class DishServiceTests
         Assert.Equal(createdDish.Id, createdDishPrep.DishId);
         Assert.Equal(dishPrepRequest.Rating, createdDishPrep.Rating);
 
-        var updatedDish = _fakeDishRepository.GetDish(createdDish.Id);
+        var updatedDish = _fakeDishRepository.GetDishWithDishPrepsAndProfiles(createdDish.Id);
         Assert.Equal(1, updatedDish.NofRatings);
         Assert.Equal(dishPrepRequest.Rating, updatedDish.Rating);
         Assert.Equal(createdDishPrep.DateTimestamp, updatedDish.LastMadeTimestamp);
@@ -129,7 +129,7 @@ public class DishServiceTests
         _dishService.CreateDishPrep(dishPrepRequest2, userId2, createdDish.Id);
 
         // Assert
-        var updatedDish = _fakeDishRepository.GetDish(dish.Id);
+        var updatedDish = _fakeDishRepository.GetDishWithDishPrepsAndProfiles(dish.Id);
         Assert.Equal(2, updatedDish.NofRatings);
         Assert.Equal(4, updatedDish.Rating);
     }

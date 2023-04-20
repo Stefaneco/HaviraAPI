@@ -43,7 +43,7 @@ public class FakeDishRepository : IDishRepository
         }
     }
 
-    public Dish GetDish(long dishId)
+    public Dish GetDishWithDishPrepsAndProfiles(long dishId)
     {
         if (_dishes.TryGetValue(dishId, out var dish))
         {

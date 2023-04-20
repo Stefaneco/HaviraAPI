@@ -5,7 +5,7 @@ namespace HaviraApi.Repositories;
 
 public interface IDishRepository
 {
-    public Dish GetDish(long dishId);
+    public Dish GetDishWithDishPrepsAndProfiles(long dishId);
 
     public Dish CreateDish(Dish dish);
 
@@ -16,5 +16,7 @@ public interface IDishRepository
     public Dish UpdateDish(Dish dish);
 
     public void DeleteDish(Dish dish);
+
+    public Dish GetDish(long dishId);
 }
 

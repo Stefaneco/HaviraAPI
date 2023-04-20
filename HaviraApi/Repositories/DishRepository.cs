@@ -34,7 +34,7 @@ public class DishRepository : IDishRepository
         _dbContext.SaveChanges();
     }
 
-    public Dish GetDish(long dishId)
+    public Dish GetDishWithDishPrepsAndProfiles(long dishId)
     {
         var dish = _dbContext.Dishes
             .Include(d => d.DishPreps)
@@ -58,6 +58,13 @@ public class DishRepository : IDishRepository
         if (updatedDish is null)
             throw new NotFoundException("Dish not found");
         return updatedDish.Entity;
+    }
+
+    public Dish GetDish(long dishId)
+    {
+        var dish = _dbContext.Dishes
+           .First(d => d.Id == dishId) ?? throw new NotFoundException("Dish not found");
+        return dish;
     }
 }
 

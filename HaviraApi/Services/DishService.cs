@@ -46,7 +46,7 @@ public class DishService : IDishService
         };
         var createdDishPrep = _dishRepository.CreateDishPrep(newDishPrep);
 
-        var dish = _dishRepository.GetDish(createdDishPrep.DishId);
+        var dish = _dishRepository.GetDishWithDishPrepsAndProfiles(createdDishPrep.DishId);
         
         dish.LastMadeTimestamp = createdDishPrep.DateTimestamp;
         dish.Rating =
@@ -61,7 +61,7 @@ public class DishService : IDishService
 
     public void DeleteDish(long dishId, string userId)
     {
-        var dish = _dishRepository.GetDish(dishId);
+        var dish = _dishRepository.GetDishWithDishPrepsAndProfiles(dishId);
         var group = _groupRepository.GetGroupById(dish.GroupId);
         var isUserInGroup = group.UserProfiles.Exists(u => u.Id == userId);
         if (!isUserInGroup) throw new BadRequestException("User is not a member of this group");
@@ -70,7 +70,7 @@ public class DishService : IDishService
 
     public Dish GetDish(long dishId)
     {
-        var dish = _dishRepository.GetDish(dishId);
+        var dish = _dishRepository.GetDishWithDishPrepsAndProfiles(dishId);
         return dish;
     }
 
